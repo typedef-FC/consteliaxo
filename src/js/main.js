@@ -13,8 +13,10 @@ const {
  * useful to automatically reload the page instead of having to relaunch the application per edit to index.html
  * only needed for debug development
  */
+/*
 const path = require('path');
 require('electron-reload')(path.normalize(path.join(__dirname, '../../src/index.html')), { electron: path.join(__dirname, '../../node_modules', '.bin', 'electron') });
+*/
 
 let window = null;
 
