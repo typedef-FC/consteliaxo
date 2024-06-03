@@ -1,0 +1,37 @@
+{
+  "name": "consteliaxo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/js/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^28.2.3",
+    "electron-builder": "^24.9.1"
+  },
+  "keywords": [],
+  "author": "typedef <fantasy.cat.community@gmail.com>",
+  "homepage": "https://constelia.ai",
+  "license": "ISC",
+  "dependencies": {
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "build": {
+    "appId": "com.constelia.X0",
+    "productName": "consteliaX0",
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "maintainer": "typedef <fantasy.cat.community@gmail.com>"
+    }
+  }
+}

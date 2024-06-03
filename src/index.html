@@ -1,0 +1,595 @@
+<!--
+    @title
+        index.html
+
+    @author
+        typedef
+
+    @description
+        browser page for ConsteliaXO.
+-->
+
+<html lang="en">
+<head>
+
+    <!-- title -->
+    <title>consteliaXO</title>
+
+    <!-- stylesheet references -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+
+    <!-- page styling -->
+    <style>
+
+        /** essentials **/
+        body
+        {
+            background-color: #1a1a1a;
+            font-family: 'Ubuntu Mono', monospace;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 1em;
+        }
+
+        /** main panel **/
+        #main-panel
+        {
+            width: 80%;
+            margin: auto;
+        }
+
+        /** tabs **/
+        .tab-container
+        {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            border-bottom: 1px solid #3333cc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+
+        .tab
+        {
+            padding: 5px 10px;
+            background-color: #5c5cd6;
+            color: white;
+            cursor: pointer;
+            border: 1px solid #3333cc;
+            border-bottom: none;
+            margin-right: 5px;
+        }
+
+        .tab:hover
+        {
+            background-color: #4747d1;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active
+        {
+            background-color: #3333cc;
+            color: #fff;
+            border-bottom: 3px solid #fff;
+        }
+
+        /** configuration **/
+        .config-container
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px;
+        }
+
+        .config
+        {
+            display: none;
+            margin-bottom: 20px;
+            background-color: #1a1a1a;
+            z-index: 1;
+        }
+
+        .config-label, .config-input
+        {
+            margin: 5px 5px;
+        }
+
+        .config-item
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .tab.active, .config.active
+        {
+            color: white;
+            display: block;
+        }
+
+        #right-panel
+        {
+            display: none;
+        }
+
+        /** side panel */
+        .constelia-panel
+        {
+            flex-grow: 1;
+            border-left: 1px solid white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 450px;
+            padding-left: 15px;
+        }
+
+        #constelia-input
+        {
+            /* The same as .config-input */
+            padding: .5em;
+            border-radius: .25em;
+            width: 100%;
+        }
+
+        .panel-image
+        {
+            width: 100%;
+        }
+
+        .constelia-question
+        {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 80%;
+        }
+
+        #button-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+
+        }
+
+        .constelia-configuration-button
+        {
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            color: white;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+<!-- main -->
+<div id="main-panel">
+    <div class="tab-container"></div>
+    <div class="config-container"></div>
+</div>
+
+<!-- side panel -->
+<div id="right-panel" class="constelia-panel">
+    <img class="panel-image" src="https://constelia.ai/constelia2.png" alt="Panel Image">
+    <input id="constelia-input" class="constelia-question" type="text" placeholder="Hey! I'm Constelia. Ask away...">
+    <span id="constelia-panel-response"></span>
+</div>
+
+<div id="button-container">
+    <button class="constelia-configuration-button" onclick="toggle_side_panel()" title="Hey Constelia! (AI Chat/Helper)">💭</button>
+    <button class="constelia-configuration-button" onclick="force_server_switch(0)" title="Universe4">🌌</button>
+    <button class="constelia-configuration-button" onclick="force_server_switch(1)" title="Constellation4">🌠</button>
+    <button class="constelia-configuration-button" onclick="reload_all_scripts()" title="Reload All Scripts">💫</button>
+</div>
+
+<!-- js -->
+<script>
+
+    /**
+     * configuration we last loaded.
+     * @type {null}
+     */
+    let configuration = null;
+
+    /**
+     * server address
+     * @type {string}
+     */
+    let server = "http://localhost:9283";
+
+    /**
+     * solution name to get from configuration
+     * @type {string}
+     */
+    let solution_name = "Constellation4";
+
+    /**
+     * updates the response content
+     * @param str
+     */
+    function update_response( str )
+    {
+        let formatted_text = str["message"];
+
+        var converter = new showdown.Converter();
+        formatted_text = converter.makeHtml(formatted_text);
+
+        $("#constelia-panel-response").html( formatted_text );
+    }
+
+    /**
+     * toggle side panel. sometimes we're not trying to see Constelia.
+     */
+    function toggle_side_panel()
+    {
+        const panel = $("#right-panel");
+        const button = $("#constelia-panel-collapse-button");
+
+        if( panel.is( ":visible") )
+        {
+            panel.hide();
+            button.html('💭');
+        }
+        else
+        {
+            panel.show();
+            button.html('💬');
+        }
+    }
+
+    /**
+     * gets the configuration through /luar and consteliax3.lua
+     *
+     * the only reason why solution is a parameter is because of a few early development thoughts of making this functional with other FC2 solutions. I suppose we'll see how that turns out in the future.
+     * @param solution
+     * @returns {Promise<void>}
+     */
+    async function get_configuration(solution)
+    {
+        try
+        {
+            /**
+             * clear
+             */
+            $('.tab-container').empty();
+            $('.config-container').empty();
+
+            /**
+             * get local configuration; store it in the global.
+             */
+            let data = await $.get(`${server}/luar`, { req: 2 });
+            configuration = data[ solution ];
+
+            /**
+             * debug to console (CTRL+SHIFT+I)
+             */
+            console.log( configuration );
+
+            /**
+             * loop through configuration JSON and properly create editing values.
+             */
+            $.each(configuration, function(key, value)
+            {
+                /**
+                 * so this script doesn't have any configuration values. ignore it. no tab either. move on.
+                 */
+                if (value === null) return;
+
+                /**
+                 * create our tab first
+                 * @type {*|jQuery|HTMLElement}
+                 */
+                let tab_info = $('<div class="tab" id="tab-' + key + '">' + key + '</div>');
+
+                /**
+                 * create our config area
+                 * @type {*|jQuery|HTMLElement}
+                 */
+                let conf_info = $('<div class="config" id="config-' + key + '"></div>');
+
+                /**
+                 * the script SHOULD have another object nested inside. this if statement seems a bit redundant. but better safe than sorry.
+                 */
+                if ( typeof value === 'object' )
+                {
+                    /**
+                     * loop through configuration values now.
+                     */
+                    for( let [ setting, setting_val ] of Object.entries( value ) )
+                    {
+                        let field_type = typeof setting_val === 'boolean' ? 'checkbox' : 'text';
+                        let input_string_value = setting_val;
+                        let attribute_checked = "";
+
+                        /**
+                         * is checkbox? make sure we convert this properly. it's going to return an actual true or false string.
+                         */
+                        if (field_type === 'checkbox')
+                        {
+                            input_string_value = setting_val ? 'true' : 'false';
+                            attribute_checked = setting_val ? ' checked' : '';
+                        }
+
+                        /**
+                         * create our setting element
+                         * @type {*|jQuery|HTMLElement}
+                         */
+                        let conf_element = $('<div class="config-item"><label class="config-label" for="input-' + setting + '">' + setting + ': </label><input class="config-input" id="input-' + setting + '" type="' + field_type + '" value="' + input_string_value + '"' + attribute_checked + '></div>');
+
+                        /**
+                         * event for changing the value
+                         */
+                        conf_element.find('input').change(function() {
+
+                            let changed_to;
+                            let changed_type;
+                            let changed_key = $(this).attr('id').replace('input-', '');
+                            let current_script = $('.tab.active').attr('id').replace('tab-', '');
+
+                            if (field_type === 'checkbox')
+                            {
+                                changed_to = $(this).prop('checked');
+                                changed_type = 'boolean';
+                            }
+                            else
+                            {
+                                changed_to = $(this).val();
+                                changed_type = $.isNumeric(changed_to) ? 'number' : 'string';
+
+                                if(changed_type === 'number') {
+                                    changed_to = Number(changed_to);
+                                }
+                            }
+
+                            /**
+                             * send information back to FC2
+                             */
+                            $.get(`${server}/luar`, {
+                                req: 3,
+                                key: changed_key,
+                                val: changed_to,
+                                script: current_script,
+                                val_type: changed_type
+                            })
+                                .done(function(data) {
+                                    /**
+                                     * this doesnt matter right now. nothing is ever returned in the script here.
+                                     */
+                                    console.log(data);
+                                })
+                                .fail(function() {
+                                    console.log("Error occurred while sending changed configuration values");
+                                });
+                        });
+
+                        /**
+                         * add our element to the page now.
+                         */
+                        conf_info.append(conf_element);
+                    }
+                }
+
+                /**
+                 * handle tab changing and configuration to show
+                 */
+                tab_info.click(function(){
+                    $('.tab').removeClass('active');
+                    $(this).addClass('active');
+                    $('.config').removeClass('active');
+                    conf_info.addClass('active');
+                });
+
+                $('.tab-container').append(tab_info);
+                $('.config-container').append(conf_info);
+            });
+
+
+            $('.tab').first().click();
+        }
+        catch (error)
+        {
+            /**
+             * we're just going to assume Constellation4 isn't open to why there is an error here. there shouldn't be.
+             */
+            console.log(error);
+            alert("There doesn't seem to be a specific solution running anymore or the selected solution isn't running.");
+        }
+    }
+
+    /**
+     * checks if any of the solutions are open
+     * @returns {Promise<void>}
+     */
+    async function check_solution_status()
+    {
+        /**
+         * let's check if universe4 is open first. if not, we're going to check for constellation4
+         * in the case both are open, we will ask the user to pick
+         */
+
+        try {
+            let request1 = $.get(`http://localhost:9282/ping`).then(() => true, () => false);
+            let request2 = $.get(`${server}/ping`).then(() => true, () => false);
+
+            let results = await Promise.all([request1, request2]);
+
+            let is_universe_open = results[0];
+            let is_constellation_open = results[1];
+
+            /** neither solution is open **/
+            if (!is_universe_open && !is_constellation_open) {
+                alert("Both Universe4 and Constellation4 appear to be closed. At least one solution is required.");
+                return;
+            }
+
+            /** only universe4 is open **/
+            if( is_universe_open && !is_constellation_open )
+            {
+                server = "http://localhost:9282";
+                solution_name = "Universe4";
+            }
+
+            /** both are open **/
+            if (is_universe_open && is_constellation_open) {
+                const choice = window.confirm("Universe4 and Constellation4 are both open. consteliaXO needs to know which solution to connect to.\n\nOK: Constellation4\nCancel: Universe4");
+
+                /** always assumed constellation4 by default **/
+                if( !choice ) {
+                    server = "http://localhost:9282";
+                    solution_name = "Universe4";
+                }
+            }
+
+            await get_configuration(solution_name);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function reload_all_scripts( ) {
+        await $.get(`${server}/reset`);
+    }
+
+    /**
+     * force to switch to another server.
+     * @param uni_or_con
+     * @returns {Promise<void>}
+     */
+    async function force_server_switch(uni_or_con) {
+
+        const old_server = server;
+        const old_solution_name = solution_name;
+
+        /**
+         * only supporting two solutions, a simple switch.
+         * save the old server and solution name just in case.
+         */
+        if (!uni_or_con) {
+            server = "http://localhost:9282";
+            solution_name = "Universe4";
+        } else {
+            server = "http://localhost:9283";
+            solution_name = "Constellation4";
+        }
+
+        /** annoying **/
+        //alert(solution_name + " has been selected.");
+
+        /**
+         * check if solution is running.
+          */
+        let request = $.get(`${server}/ping`).then(() => true, () => false);
+        let is_solution_open = await request;
+
+        if( !is_solution_open ) {
+            const choice = window.confirm(solution_name + " is not running, would you like to launch it?" );
+
+            if( choice )
+            {
+                let result = false;
+
+                $.get(`${old_server}/luar`, {
+                    req: 4,
+                    val: solution_name,
+                } )
+                    .done( function() {
+                        alert("Solution should be launching now. This can take a bit. See terminal/console of your currently active FC2 solution to see the current status.");
+                        result = true;
+                    })
+                    .fail(function() {
+                        alert("Solution failed to start. See terminal/console of your currently active solution.");
+                    });
+
+                if( !result )
+                {
+                    /**
+                     * reset back to old values
+                     */
+                    server = old_server;
+                    solution_name = old_solution_name;
+                }
+            }
+            else
+            {
+                /**
+                 * reset back to old values
+                 */
+                server = old_server;
+                solution_name = old_solution_name;
+            }
+        }
+
+        try {
+            await get_configuration(solution_name);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    /**
+     * LETS GET THIS PARTY STARTED.
+     */
+    $(document).ready(function() {
+        check_solution_status();
+    });
+
+    /**
+     * copied from heyConstelia.lua's Web GUI
+     */
+    $("#constelia-input" ).on( "keypress", ( function( e ) {
+
+        /**
+         * enter pressed?
+         */
+        if( e.which === 13 )
+        {
+
+            /**
+             * let user know the AI is thinking
+             */
+            update_response( {message: "Thinking... please wait..."} );
+
+            /**
+             * send a request to Constellation4
+             */
+            $.get(`${server}/luar`, {
+                req: 1,
+                val: $("#constelia-input").val(),
+            } )
+                .done( function(data) {
+                    return update_response( data );
+                })
+                .fail(function() {
+                    update_response( {message: "Constellation4 is closed. It needs to be open to use this feature."} );
+                });
+        }
+    }));
+
+</script>
+
+</body>
+
+</html>
