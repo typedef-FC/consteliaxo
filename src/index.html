@@ -18,6 +18,10 @@
     <!-- stylesheet references -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -25,12 +29,20 @@
     <!-- markdown -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
 
+    <!-- bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+
+    <!-- ace editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+
     <!-- page styling -->
     <style>
 
         /** essentials **/
-        body
-        {
+        body {
             background-color: #1a1a1a;
             font-family: 'Ubuntu Mono', monospace;
             color: white;
@@ -39,27 +51,29 @@
             padding: 1em;
         }
 
+        input {
+            color: black;
+        }
+
         /** main panel **/
-        #main-panel
-        {
+        #main-panel {
             width: 80%;
             margin: auto;
+            position: relative;
+            padding-top: 120px;
         }
 
         /** tabs **/
-        .tab-container
-        {
+        .tab-container {
             display: flex;
             flex-direction: row;
             width: 100%;
             border-bottom: 1px solid #3333cc;
             padding-bottom: 10px;
-            margin-bottom: 20px;
             overflow: auto;
         }
 
-        .tab
-        {
+        .tab {
             padding: 5px 10px;
             background-color: #5c5cd6;
             color: white;
@@ -69,66 +83,59 @@
             margin-right: 5px;
         }
 
-        .tab:hover
-        {
+        .tab:hover {
             background-color: #4747d1;
             color: #fff;
             transition: all 0.3s ease;
         }
 
-        .tab.active
-        {
+        .tab.active {
             background-color: #3333cc;
             color: #fff;
             border-bottom: 3px solid #fff;
         }
 
         /** configuration **/
-        .config-container
-        {
+        .config-container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             padding: 10px;
         }
 
-        .config
-        {
+        .config {
             display: none;
             margin-bottom: 20px;
             background-color: #1a1a1a;
             z-index: 1;
         }
 
-        .config-label, .config-input
-        {
+        .config-label, .config-input {
             margin: 5px 5px;
         }
 
-        .config-item
-        {
+        .config-item {
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
             width: 100%;
             margin-bottom: 10px;
+            /* Added to create space for the color picker */
+            position: relative;
         }
 
-        .tab.active, .config.active
-        {
+        .tab.active, .config.active {
             color: white;
             display: block;
         }
 
-        #right-panel
-        {
+        #right-panel {
             display: none;
         }
 
         /** side panel */
-        .constelia-panel
-        {
+        .constelia-panel {
             flex-grow: 1;
             border-left: 1px solid white;
             display: flex;
@@ -139,21 +146,18 @@
             padding-left: 15px;
         }
 
-        #constelia-input
-        {
+        #constelia-input {
             /* The same as .config-input */
             padding: .5em;
             border-radius: .25em;
             width: 100%;
         }
 
-        .panel-image
-        {
+        .panel-image {
             width: 100%;
         }
 
-        .constelia-question
-        {
+        .constelia-question {
             margin-top: 20px;
             padding: 10px;
             font-size: 16px;
@@ -170,13 +174,263 @@
 
         }
 
-        .constelia-configuration-button
-        {
+        .constelia-configuration-button {
             cursor: pointer;
             border: none;
             background-color: transparent;
             color: white;
             font-size: 20px;
+        }
+
+        .constelia-configuration-button-awesome {
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            color: white;
+            font-size: 18px;
+            padding-top: 10px;
+            padding-right: 10px;
+        }
+
+        /** modal **/
+        #bones-panel-modal, #scripts-panel-modal, #cmd-panel-modal {
+            color: black;
+        }
+
+        #local-panel-modal {
+            color: black;
+        }
+
+        .modal-dialog {
+            width: 70vw;
+            height: 80vh;
+        }
+
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            color: black;
+        }
+
+        .modal-header {
+            flex: 0 0 auto;
+        }
+
+        .modal-body img {
+            max-width: 40%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .modal-footer {
+            flex: 0 0 auto;
+        }
+
+        .bones-img-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bones-img {
+            height: auto;
+            width: 50%;
+        }
+
+        .select2-container--default .select2-results__option {
+            color: black;
+        !important;
+        }
+
+        #scripts-panel-modal, tr td {
+            color: black;
+        !important;
+        }
+
+        #scripts-panel-modal, tr th {
+            color: white;
+        !important;
+        }
+
+        #local-panel-modal, tr td {
+            color: black;
+        !important;
+        }
+
+        #local-panel-modal, tr th {
+            color: white;
+        !important;
+        }
+
+        .scripts_table {
+            font-family: 'Arial', sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table.scripts_table th,
+        table.scripts_table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        table.scripts_table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table.scripts_table tr:hover {
+            background-color: #ddd;
+        }
+
+        table.scripts_table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #6c2ed5;
+            color: white;
+        }
+
+        .avatar-container {
+            display: flex;
+            justify-content: center;
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 200px;
+            padding-top: 20px; /* Adjust padding as needed */
+        }
+
+        .avatar {
+            width: 100%;
+            max-width: 256px;
+            height: auto;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #5c5cd6;
+
+        }
+
+        /* Color picker */
+        /* Note: this is by far the most cursed code I've ever written, but I couldnt do css if my life depended on it */
+        .color-picker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+            /* Position it next to the input without affecting layout */
+            position: absolute;
+            right: 75; /* arbitrary value because I couldn't get the slider to render after the color picker */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .color-picker-container {
+            position: absolute;
+            right: -100px;  /* Adjust as needed to position next to color picker */
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Remove default color picker styling */
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        /* Hover and focus states */
+        .color-picker:hover {
+            transform: translateY(-50%) scale(1.05);
+            transition: transform 0.2s ease;
+        }
+
+        .color-picker:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(92, 92, 214, 0.2);
+        }
+
+        /* Opacity Slider */
+        .opacity-display {
+            position: fixed;
+            right: -35; /* arbitrary value because I couldn't get the slider to render after the color picker */
+        }
+
+        .opacity-slider {
+            position: fixed;
+            right: 5; /* arbitrary value because I couldn't get the slider to render after the color picker */
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: #ddd;
+            width: 60px;
+        }
+    
+        .opacity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .avatar-container {
+                display: none;
+            }
+
+            #main-panel {
+                padding-top: 0; /* Remove the top padding when the avatar is hidden */
+            }
+        }
+
+        #cmd-panel-modal .modal-content {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        #cmd-panel-modal .modal-header,
+        #cmd-panel-modal .modal-footer {
+            border-color: #333;
+        }
+
+        #fantasy_cmd {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+
+        #fantasy_cmd_output {
+            background-color: #222;
+            color: white;
+            border: 1px solid #555;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        @keyframes rotate360 {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .avatar.rotate {
+            animation: rotate360 1s ease-in-out forwards;
         }
     </style>
 </head>
@@ -186,6 +440,9 @@
 
 <!-- main -->
 <div id="main-panel">
+    <div class="avatar-container">
+        <img id="member_avatar" class="avatar" alt="Fetching FC2 data..." src="" draggable="false">
+    </div>
     <div class="tab-container"></div>
     <div class="config-container"></div>
 </div>
@@ -197,11 +454,263 @@
     <span id="constelia-panel-response"></span>
 </div>
 
+<!-- cmd panel -->
+<div id="cmd-panel-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">fantasy.cmd</h4>
+            </div>
+            <div class="modal-body">
+
+                <div>
+                    Now simply called the "Member's Panel", fantasy.cmd is a terminal system that allows you to view or modify information about your license key. This is the first feature you ever used when you became a
+                    member.<br/><br/>Making changes to your account or license in consteliaxo's terminal will not immediately reflect upon the active running solution(s). You would need to restart the solution(s) to see
+                    changes. Unlike the real Member's Panel, the `scripts` command will not update the terminal output when you enable/disable a script. Consider using the actual script enabler/disabler in consteliaxo.
+                    <br/><br/>
+                    You can view the list of commands by going <span onclick="open_in_fc2('https://constelia.ai/forums/index.php?threads/software-installation-usage-guide.8114/#post-62531')"
+                                                                     style="color: darkslateblue; font-weight: bold; cursor: pointer;">here (click me)</span>.
+                    <br/><br/>
+
+                    <input style="width: 100%;" id="fantasy_cmd" placeholder="Type your command here"/>
+                    <br/>
+                    <div id="fantasy_cmd_output"></div>
+                </div>
+                <br/>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- bones panel modal -->
+<div id="bones-panel-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Bones Selector</h4>
+            </div>
+            <div class="modal-body">
+                <div class="bones-img-container">
+                    <img class="bones-img" id="image1" src="img/cs.png" alt="Image 1">
+                    <img class="bones-img" id="image2" src="img/tf2.png" alt="Image 2">
+                </div>
+
+                <br/><br/>
+                <div>
+                    If the images above are too small, consider increasing the size of your GUI. On certain models, specifically in TF2, the bone IDs might be different. When you pick which bones to allow FC2 to focus,
+                    having more does not mean better results. Also, you should select bones that would be for your aiming habits. There is no right answer to which bones to select. The default bones in FC2 are usually
+                    good enough.
+                    <br/><br/>
+                    Select which bones you wish you to use:
+                    <select id="select-bones" class="form-control" multiple="multiple">
+                        <option value="1">Bone 1</option>
+                        <option value="2">Bone 2</option>
+                        <option value="3">Bone 3</option>
+                        <option value="4">Bone 4</option>
+                        <option value="5">Bone 5</option>
+                        <option value="6">Bone 6</option>
+                        <option value="7">Bone 7</option>
+                        <option value="8">Bone 8</option>
+                        <option value="9">Bone 9</option>
+                        <option value="10">Bone 10</option>
+                        <option value="11">Bone 11</option>
+                        <option value="12">Bone 12</option>
+                        <option value="13">Bone 13</option>
+                        <option value="14">Bone 14</option>
+                        <option value="15">Bone 15</option>
+                        <option value="16">Bone 16</option>
+                        <option value="17">Bone 17</option>
+                        <option value="18">Bone 18</option>
+                        <option value="19">Bone 19</option>
+                        <option value="20">Bone 20</option>
+                        <option value="21">Bone 21</option>
+                        <option value="22">Bone 22</option>
+                        <option value="23">Bone 23</option>
+                        <option value="24">Bone 24</option>
+                        <option value="25">Bone 25</option>
+                        <option value="26">Bone 26</option>
+                        <option value="27">Bone 27</option>
+                        <option value="28">Bone 28</option>
+                        <option value="29">Bone 29</option>
+                        <option value="30">Bone 30</option>
+                        <option value="31">Bone 31</option>
+                        <option value="32">Bone 32</option>
+                        <option value="33">Bone 33</option>
+                        <option value="34">Bone 34</option>
+                        <option value="35">Bone 35</option>
+                        <option value="36">Bone 36</option>
+                        <option value="37">Bone 37</option>
+                        <option value="38">Bone 38</option>
+                        <option value="39">Bone 39</option>
+                        <option value="40">Bone 40</option>
+                    </select>
+                </div>
+                <br/>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- scripts panel modal -->
+<div id="scripts-panel-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Scripts</h4>
+            </div>
+            <div class="modal-body">
+
+                <div>
+                    Having a lot of scripts enabled does not imply better performance or a better experience. Rather, it is recommended to run only what is necessary. If you have no idea what a script does, you should
+                    probably click the name of the script to view the forum thread.
+                    <br/><br/>
+                    Furthermore, you should <b>only</b> report script issues in the related script thread. It is the script developer's responsibility to maintain their script. If you have an issue running a script, do
+                    not post in Troubleshooting. Read your logs, it will likely tell you what's happening. It can also occur that some scripts might be outdated. Check the forum thread to see the status.
+                </div>
+                <br/>
+
+                <div class="table-responsive">
+                    <table class="scripts_table">
+                        <thead>
+                        <tr>
+                            <th class="sort" data-sortby="software">Software <span class="sort-arrow">↕</span></th>
+                            <th class="sort" data-sortby="name">Name <span class="sort-arrow">↕</span></th>
+                            <th class="sort" data-sortby="team">Team <span class="sort-arrow">↕</span></th>
+                            <th class="sort" data-sortby="last_update">Updated <span class="sort-arrow">↕</span></th>
+                            <th class="sort" data-sortby="enabled">Status <span class="sort-arrow">↕</span></th>
+                        </tr>
+                        </thead>
+
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <br/><br/>
+
+                <br/>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="disable_all_scripts()">Disable All Scripts</button>
+                <button type="button" class="btn btn-default" onclick="reload_all_scripts()">Reload All Scripts</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- scripts local panel modal -->
+<div id="local-panel-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Local Scripts</h4>
+            </div>
+            <div class="modal-body">
+
+                <div>
+                    This feature should only be used for those editing local scripts.
+                    <br/><br/>
+                    Below are a list of local scripts (if any) that can be manually reloaded in the case you wish to make an edit to a script, then quickly see the changes. This is faster than reloading all your scripts
+                    or restarting the solution. Simply press the reload button on a script to make it reload.
+                </div>
+                <br/>
+
+                <div class="table-responsive">
+                    <table class="scripts_table">
+                        <thead>
+                        <tr>
+                            <th class="sort" data-sortby="name">Name</th>
+                            <th class="sort" data-sortby="name">Action</th>
+
+                        </tr>
+                        </thead>
+
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <br/><br/>
+
+                <br/>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- json editor modal -->
+<div id="json-editor-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Configuration JSON Editor</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    This is the raw JSON code for your configuration. This is for ADVANCED USERS ONLY. Only edit this code if you know what you're doing. Practical reasons for editing
+                    this code include:
+                    <ul>
+                        <li>Removing old script configuration.</li>
+                        <li>You are debugging a script.</li>
+                        <li>You find it genuinely easier to edit through JSON.</li>
+                    </ul>
+                    <br />
+                </div>
+                <div id="json-editor" style="height: 400px; width: 100%;"></div>
+                <div id="error-message" style="color: red; padding-top: 10px;"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="save_json_configuration()">Save Configuration</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <div id="button-container">
     <button class="constelia-configuration-button" onclick="toggle_side_panel()" title="Hey Constelia! (AI Chat/Helper)">💭</button>
     <button class="constelia-configuration-button" onclick="force_server_switch(0)" title="Universe4">🌌</button>
     <button class="constelia-configuration-button" onclick="force_server_switch(1)" title="Constellation4">🌠</button>
+    <button class="constelia-configuration-button" onclick="force_server_switch(2)" title="Aurora2">🌆</button>
     <button class="constelia-configuration-button" onclick="reload_all_scripts()" title="Reload All Scripts">💫</button>
+    <br/>
+
+    <button class="constelia-configuration-button-awesome" onclick="show_cmd_panel()" title="fantasy.cmd"><i class="fa-solid fa-terminal"></i></button>
+    <button class="constelia-configuration-button-awesome" onclick="show_scripts_panel('enabled', 'desc')" title="Scripts"><i class="fa-solid fa-code"></i></button>
+    <button class="constelia-configuration-button-awesome" onclick="show_local_scripts()" title="Local Scripts"><i class="fa-solid fa-laptop-code"></i></button>
+    <button class="constelia-configuration-button-awesome" onclick="show_local_configuration_editor()" title="Edit JSON"><i class="fa-solid fa-code-commit"></i></button>
+
+    <br/>
+    <button class="constelia-configuration-button-awesome" onclick="show_bones_panel()" title="Bones"><i class="fa-solid fa-bone"></i></button>
 </div>
 
 <!-- js -->
@@ -226,17 +735,349 @@
     let solution_name = "Constellation4";
 
     /**
+     * for customization
+     * @type {null}
+     */
+    let custom_style_element = null;
+
+    /**
+    * Handles initialization and updates of color picker elements in the configuration
+    */
+    let colorPickerState = {
+        debounceTimer: null
+    };
+
+    /**
+     * ace editor JSON
+     */
+    const ace_json_editor = ace.edit( "json-editor" );
+    ace_json_editor.setTheme( "ace/theme/tomorrow_night" );
+    ace_json_editor.session.setMode( "ace/mode/json" );
+
+    function save_json_configuration()
+    {
+        const json_value = ace_json_editor.getValue();
+        try
+        {
+            JSON.parse( json_value );
+
+            $.post( `${ server }/luar`, {
+                req: 15,
+                value: json_value
+            } )
+                .done( async function ( data )
+                {
+                    document.getElementById( "error-message" ).innerText = "";
+                    console.log( data );
+
+                    alert("Configuration Saved");
+
+                    await get_configuration( solution_name );
+                } )
+                .fail( function ()
+                {
+                    console.log( "failed to get save configuration" );
+                } );
+        }
+        catch ( error )
+        {
+            document.getElementById( "error-message" ).innerText = error;
+        }
+    }
+
+    /**
      * updates the response content
      * @param str
      */
     function update_response( str )
     {
-        let formatted_text = str["message"];
+        let formatted_text = str[ "message" ];
 
         var converter = new showdown.Converter();
-        formatted_text = converter.makeHtml(formatted_text);
+        formatted_text = converter.makeHtml( formatted_text );
 
-        $("#constelia-panel-response").html( formatted_text );
+        $( "#constelia-panel-response" ).html( formatted_text );
+    }
+
+    /**
+     * this will open a URL inside of FC2 rather than deal with Electron's weird shell.
+     * @param url
+     */
+    function open_in_fc2( url )
+    {
+        $.get( `${ server }/luar`, {
+            req: 8,
+            url: url
+        } )
+    }
+
+
+    function disable_all_scripts()
+    {
+        const choice = window.confirm( "Even though you are requesting to disable all scripts, do you want to at least keep the essential library scripts (which most scripts require to function properly).\n\nOK: Yes\nCancel: No" );
+
+        $.get( `${ server }/luar`, {
+            req: 10,
+            core: choice
+        } )
+
+        show_scripts_panel( 'enabled', 'desc' );
+    }
+
+    /**
+     * show bones modal
+     */
+    function show_bones_panel()
+    {
+
+        if ( solution_name !== "Constellation4" )
+        {
+            alert( "Bone selection is only for Constellation4." );
+            return;
+        }
+
+        $( '#bones-panel-modal' ).modal( 'show' );
+    }
+
+    /**
+     * cmd panel
+     */
+    function show_cmd_panel()
+    {
+        $( '#cmd-panel-modal' ).modal( 'show' );
+    }
+
+
+    function show_local_scripts()
+    {
+        /**
+         * reset
+         */
+        $( ".scripts_table tbody" ).empty();
+
+        /**
+         * get loaded scripts. let's use Lua instead of going through JS. this should save complications with the key parameter (if any).
+         */
+        $.get( `${ server }/luar`, {
+            req: 13,
+        } )
+            .done( function ( data )
+            {
+
+                console.log( data );
+
+                $.each( data, function ( index, item )
+                {
+
+                    /**
+                     * start off the row str
+                     * @type {*|jQuery|HTMLElement}
+                     */
+                    let row = $( "<tr></tr>" );
+
+                    $( "<td></td>" ).text( item ).appendTo( row );
+
+                    let reload_btn = $( "<button></button>" )
+                        .attr( { "type": "button", "class": "btn btn-default" } )
+                        .text( "Reload" );
+
+                    $( "<td></td>" )
+                        .append( reload_btn )
+                        .appendTo( row );
+
+
+                    reload_btn.on( 'click', function ()
+                    {
+                        /**
+                         * toggleScriptStatus in consteliaxo.lua
+                         */
+                        $.get( `${ server }/luar`, {
+                            req: 14,
+                            name: item
+                        } )
+                            .done( function ()
+                            {
+                                console.log( "script reloaded" );
+                            } )
+                            .fail( function ()
+                            {
+                                console.log( "script could not be reloaded" );
+                            } );
+
+                    } );
+
+                    row.appendTo( ".scripts_table" );
+                } );
+            } )
+            .fail( function ()
+            {
+                console.log( "failed to get scripts" );
+            } );
+
+
+        $( '#local-panel-modal' ).modal( 'show' );
+    }
+
+    /**
+     * show scripts modal
+     */
+    function show_scripts_panel( sort_prop, sort_dir )
+    {
+
+        /**
+         * reset
+         */
+        $( ".scripts_table tbody" ).empty();
+
+        /**
+         * get loaded scripts. let's use Lua instead of going through JS. this should save complications with the key parameter (if any).
+         */
+        $.get( `${ server }/luar`, {
+            req: 7,
+        } )
+            .done( function ( data )
+            {
+
+                /**
+                 * debug
+                 */
+                console.log( data );
+
+                /**
+                 * sorting info
+                 * @type {*|string}
+                 */
+                let prop = sort_prop || "name";
+                let direction = sort_dir || "asc";
+
+                data.sort( function ( a, b )
+                {
+                    if ( a[ prop ] < b[ prop ] )
+                    {
+                        return direction === 'asc' ? -1 : 1;
+                    }
+                    if ( a[ prop ] > b[ prop ] )
+                    {
+                        return direction === 'asc' ? 1 : -1;
+                    }
+
+                    return 0;
+                } );
+
+                $.each( data, function ( index, item )
+                {
+
+                    /**
+                     * start off the row str
+                     * @type {*|jQuery|HTMLElement}
+                     */
+                    let row = $( "<tr></tr>" );
+
+                    /**
+                     * software name found on documentation
+                     * @type {string}
+                     */
+                    let software_name = "Unknown Solution";
+                    switch ( item.software )
+                    {
+                        case 4:
+                            software_name = "FC2 Global";
+                            break;
+                        case 5:
+                            software_name = "Universe4";
+                            break;
+                        case 6:
+                            software_name = "Constellation4";
+                            break;
+                        case 7:
+                            software_name = "Parallax2";
+                            break;
+                    }
+
+                    /**
+                     * software doesn't have an elapsed, likely never updated.
+                     */
+                    if ( !item.elapsed || item.elapsed.length === 0 )
+                    {
+                        item.elapsed = "Never";
+                    }
+
+                    $( "<td></td>" ).text( software_name ).appendTo( row );
+                    $( "<td></td>" ).append( $( "<a></a>" ).attr( "onclick", "open_in_fc2('" + item.forums + "', '_blank')" ).text( item.name ) ).appendTo( row );
+                    $( "<td></td>" ).text( item.team ).appendTo( row );
+                    $( "<td></td>" ).append( $( "<a></a>" ).attr( "onclick", "open_in_fc2('https://constelia.ai/members/source.php?id=" + item.id + "', '_blank')" ).text( item.elapsed ) ).appendTo( row );
+
+                    let enable_disable_btn = $( "<button></button>" )
+                        .attr( { "type": "button", "class": "btn btn-default" } )
+                        .text( item.enabled ? "Enabled" : "Disabled" );
+
+                    $( "<td></td>" )
+                        .append( enable_disable_btn )
+                        .appendTo( row );
+
+
+                    enable_disable_btn.on( 'click', function ()
+                    {
+                        /**
+                         * toggleScriptStatus in consteliaxo.lua
+                         */
+                        $.get( `${ server }/luar`, {
+                            req: 9,
+                            id: item.id
+                        } )
+                            .done( function ()
+                            {
+                                console.log( "script toggled" );
+                            } )
+                            .fail( function ()
+                            {
+                                console.log( "script could not be toggled" );
+                            } );
+
+                        /**
+                         * change name
+                         * @type {boolean}
+                         */
+                        item.enabled = !item.enabled;
+                        enable_disable_btn.text( item.enabled ? "Enabled" : "Disabled" );
+
+                    } );
+
+                    row.appendTo( ".scripts_table" );
+                } );
+            } )
+            .fail( function ()
+            {
+                console.log( "failed to get scripts" );
+            } );
+
+
+        $( '#scripts-panel-modal' ).modal( 'show' );
+    }
+
+    function show_local_configuration_editor()
+    {
+        $.get( `${ server }/luar`, {
+            req: 2,
+        } )
+            .done( function ( data )
+            {
+
+                console.log( data );
+
+                const json_string = JSON.stringify( data, null, 4 );
+                if( !json_string )
+                {
+                    console.log("failed to parse your configuration");
+                }
+
+                ace_json_editor.setValue( json_string, 1 );
+                $( '#json-editor-modal' ).modal( 'show' );
+                } )
+            .fail( function ()
+            {
+                console.log( "failed to get local configuration" );
+            } );
     }
 
     /**
@@ -244,18 +1085,18 @@
      */
     function toggle_side_panel()
     {
-        const panel = $("#right-panel");
-        const button = $("#constelia-panel-collapse-button");
+        const panel = $( "#right-panel" );
+        const button = $( "#constelia-panel-collapse-button" );
 
-        if( panel.is( ":visible") )
+        if ( panel.is( ":visible" ) )
         {
             panel.hide();
-            button.html('💭');
+            button.html( '💭' );
         }
         else
         {
             panel.show();
-            button.html('💬');
+            button.html( '💬' );
         }
     }
 
@@ -266,20 +1107,20 @@
      * @param solution
      * @returns {Promise<void>}
      */
-    async function get_configuration(solution)
+    async function get_configuration( solution )
     {
         try
         {
             /**
              * clear
              */
-            $('.tab-container').empty();
-            $('.config-container').empty();
+            $( '.tab-container' ).empty();
+            $( '.config-container' ).empty();
 
             /**
              * get local configuration; store it in the global.
              */
-            let data = await $.get(`${server}/luar`, { req: 2 });
+            let data = await $.get( `${ server }/luar`, { req: 2 } );
             configuration = data[ solution ];
 
             /**
@@ -290,24 +1131,35 @@
             /**
              * loop through configuration JSON and properly create editing values.
              */
-            $.each(configuration, function(key, value)
+            $.each( configuration, function ( key, value )
             {
                 /**
                  * so this script doesn't have any configuration values. ignore it. no tab either. move on.
                  */
-                if (value === null) return;
+                if ( value === null )
+                {
+                    return;
+                }
+
+                /**
+                 * ignore bones
+                 */
+                if ( key === "bones" )
+                {
+                    return;
+                }
 
                 /**
                  * create our tab first
                  * @type {*|jQuery|HTMLElement}
                  */
-                let tab_info = $('<div class="tab" id="tab-' + key + '">' + key + '</div>');
+                let tab_info = $( '<div class="tab" id="tab-' + key + '">' + key + '</div>' );
 
                 /**
                  * create our config area
                  * @type {*|jQuery|HTMLElement}
                  */
-                let conf_info = $('<div class="config" id="config-' + key + '"></div>');
+                let conf_info = $( '<div class="config" id="config-' + key + '"></div>' );
 
                 /**
                  * the script SHOULD have another object nested inside. this if statement seems a bit redundant. but better safe than sorry.
@@ -317,7 +1169,7 @@
                     /**
                      * loop through configuration values now.
                      */
-                    for( let [ setting, setting_val ] of Object.entries( value ) )
+                    for ( let [ setting, setting_val ] of Object.entries( value ) )
                     {
                         let field_type = typeof setting_val === 'boolean' ? 'checkbox' : 'text';
                         let input_string_value = setting_val;
@@ -326,7 +1178,7 @@
                         /**
                          * is checkbox? make sure we convert this properly. it's going to return an actual true or false string.
                          */
-                        if (field_type === 'checkbox')
+                        if ( field_type === 'checkbox' )
                         {
                             input_string_value = setting_val ? 'true' : 'false';
                             attribute_checked = setting_val ? ' checked' : '';
@@ -336,85 +1188,336 @@
                          * create our setting element
                          * @type {*|jQuery|HTMLElement}
                          */
-                        let conf_element = $('<div class="config-item"><label class="config-label" for="input-' + setting + '">' + setting + ': </label><input class="config-input" id="input-' + setting + '" type="' + field_type + '" value="' + input_string_value + '"' + attribute_checked + '></div>');
+                        let conf_element = $( '<div class="config-item"><label class="config-label" for="input-' + setting + '">' + setting + ': </label><input class="config-input" id="input-' + setting + '" type="' + field_type + '" value="' + input_string_value + '"' + attribute_checked + '></div>' );
 
                         /**
                          * event for changing the value
                          */
-                        conf_element.find('input').change(function() {
+                        conf_element.find( 'input' ).change( function ()
+                        {
 
                             let changed_to;
                             let changed_type;
-                            let changed_key = $(this).attr('id').replace('input-', '');
-                            let current_script = $('.tab.active').attr('id').replace('tab-', '');
+                            let changed_key = $( this ).attr( 'id' ).replace( 'input-', '' );
+                            let current_script = $( '.tab.active' ).attr( 'id' ).replace( 'tab-', '' );
 
-                            if (field_type === 'checkbox')
+                            if ( field_type === 'checkbox' )
                             {
-                                changed_to = $(this).prop('checked');
+                                changed_to = $( this ).prop( 'checked' );
                                 changed_type = 'boolean';
                             }
                             else
                             {
-                                changed_to = $(this).val();
-                                changed_type = $.isNumeric(changed_to) ? 'number' : 'string';
+                                changed_to = $( this ).val();
+                                changed_type = $.isNumeric( changed_to ) ? 'number' : 'string';
 
-                                if(changed_type === 'number') {
-                                    changed_to = Number(changed_to);
+                                if ( changed_type === 'number' )
+                                {
+                                    changed_to = Number( changed_to );
                                 }
                             }
 
                             /**
                              * send information back to FC2
                              */
-                            $.get(`${server}/luar`, {
+                            $.get( `${ server }/luar`, {
                                 req: 3,
                                 key: changed_key,
                                 val: changed_to,
                                 script: current_script,
                                 val_type: changed_type
-                            })
-                                .done(function(data) {
+                            } )
+                                .done( function ( data )
+                                {
                                     /**
                                      * this doesnt matter right now. nothing is ever returned in the script here.
                                      */
-                                    console.log(data);
-                                })
-                                .fail(function() {
-                                    console.log("Error occurred while sending changed configuration values");
-                                });
-                        });
+                                    console.log( data );
+
+                                    /**
+                                     * it matters here now for custom_css, which was added much later.
+                                     */
+                                    if ( changed_key === "custom_css" )
+                                    {
+                                        if ( typeof data === 'object' && data !== null && data.hasOwnProperty( 'code' ) )
+                                        {
+                                            console.log( "custom_css code:\n\n" + data.code );
+                                            apply_theme( data.code );
+
+                                        }
+                                        else
+                                        {
+                                            if ( custom_style_element )
+                                            {
+
+                                                console.log( "removing custom css" );
+                                                document.head.removeChild( custom_style_element );
+                                                custom_style_element = null;
+                                            }
+                                        }
+                                    }
+                                } )
+                                .fail( function ()
+                                {
+                                    console.log( "Error occurred while sending changed configuration values" );
+                                } );
+                        } );
 
                         /**
                          * add our element to the page now.
                          */
-                        conf_info.append(conf_element);
+                        conf_info.append( conf_element );
                     }
                 }
 
                 /**
                  * handle tab changing and configuration to show
                  */
-                tab_info.click(function(){
-                    $('.tab').removeClass('active');
-                    $(this).addClass('active');
-                    $('.config').removeClass('active');
-                    conf_info.addClass('active');
-                });
+                tab_info.click( function ()
+                {
+                    $( '.tab' ).removeClass( 'active' );
+                    $( this ).addClass( 'active' );
+                    $( '.config' ).removeClass( 'active' );
+                    conf_info.addClass( 'active' );
+                } );
 
-                $('.tab-container').append(tab_info);
-                $('.config-container').append(conf_info);
-            });
+                $( '.tab-container' ).append( tab_info );
+                $( '.config-container' ).append( conf_info );
+            } );
 
 
-            $('.tab').first().click();
+            $( '.tab' ).first().click();
         }
-        catch (error)
+        catch ( error )
         {
             /**
              * we're just going to assume Constellation4 isn't open to why there is an error here. there shouldn't be.
              */
-            console.log(error);
-            alert("There doesn't seem to be a specific solution running anymore or the selected solution isn't running.");
+            console.log( error );
+            alert( "There doesn't seem to be a specific solution running anymore or the selected solution isn't running." );
+        }
+    }
+
+    /**
+    * Creates a styled container for the color picker and opacity slider
+    * @param {HTMLElement} colorInput - The original input element
+    * @returns {HTMLElement} The container element
+    */
+    function createColorPickerContainer(colorInput) {
+        const container = document.createElement('div');
+        container.classList.add('color-picker-container');
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.gap = '8px';
+        container.style.marginLeft = '8px';
+        return container;
+    }
+
+    /**
+    * Creates a color picker element
+    * @param {string} initialColor - Initial color value
+    * @returns {HTMLElement} The color picker element
+    */
+    function createColorPickerElement(initialColor) {
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.classList.add('color-picker');
+        colorPicker.value = initialColor;
+        colorPicker.style.cursor = 'pointer';
+        return colorPicker;
+    }
+
+    /**
+    * Creates an opacity slider element
+    * @param {number} initialOpacity - Initial opacity value (0-255)
+    * @returns {HTMLElement} The opacity slider element
+    */
+    function createOpacitySlider(initialOpacity) {
+        const opacitySlider = document.createElement('input');
+        opacitySlider.type = 'range';
+        opacitySlider.min = '0';
+        opacitySlider.max = '255';
+        opacitySlider.value = initialOpacity;
+        opacitySlider.classList.add('opacity-slider');
+        opacitySlider.style.width = '60px';
+        opacitySlider.style.margin = '0';
+        return opacitySlider;
+    }
+
+    /**
+    * Creates an opacity value display
+    * @param {number} initialOpacity - Initial opacity value (0-255)
+    * @returns {HTMLElement} The opacity display element
+    */
+    function createOpacityDisplay(initialOpacity) {
+        const opacityDisplay = document.createElement('span');
+        opacityDisplay.classList.add('opacity-display');
+        opacityDisplay.textContent = initialOpacity;
+        opacityDisplay.style.minWidth = '30px';
+        opacityDisplay.style.fontSize = '12px';
+        return opacityDisplay;
+    }
+
+    /**
+    * Sets up a color picker for a single configuration input
+    * @param {HTMLElement} colorInput - The input element to attach a color picker to
+    */
+    function setupColorPicker(colorInput) {
+        const textInput = colorInput.closest('.config-item').querySelector('input[type="text"]');
+        if (!textInput || colorInput.nextElementSibling?.classList.contains('color-picker-container')) return;
+
+        // Parse initial color and opacity from the 8-digit hex
+        const fullHex = colorInput.value || '000000FF';
+
+        if (fullHex.length !== 8) return;  // If length isn't 8, skip the setup (all scripts use a pre-determined color, this avoids setting up a color picker next to a config item named "color_speed", for example.)
+
+        const initialColor = `#${fullHex.slice(0, 6)}`;
+        const initialOpacity = parseInt(fullHex.slice(6, 8), 16);
+
+        // Create and set up container
+        const container = createColorPickerContainer(colorInput);
+    
+        // Create and set up color picker
+        const colorPicker = createColorPickerElement(initialColor);
+    
+        // Create and set up opacity controls
+        const opacitySlider = createOpacitySlider(initialOpacity);
+        const opacityDisplay = createOpacityDisplay(initialOpacity);
+
+        // Add elements to container
+        container.appendChild(colorPicker);
+        container.appendChild(opacitySlider);
+        container.appendChild(opacityDisplay);
+
+        // Insert container after the original input
+        colorInput.insertAdjacentElement('afterend', container);
+
+        // Set up event handlers
+        setupColorPickerEvents(colorPicker, opacitySlider, opacityDisplay, colorInput);
+    }
+
+    /**
+    * Sets up event listeners for the color picker components
+    * @param {HTMLElement} colorPicker - The color picker element
+    * @param {HTMLElement} opacitySlider - The opacity slider element
+    * @param {HTMLElement} opacityDisplay - The opacity display element
+    * @param {HTMLElement} colorInput - The original input element
+    */
+    function setupColorPickerEvents(colorPicker, opacitySlider, opacityDisplay, colorInput) {
+        // Update function to combine color and opacity
+        const updateColor = () => {
+            const hexColor = colorPicker.value.slice(1);
+            const opacity = parseInt(opacitySlider.value);
+            const opacityHex = opacity.toString(16).padStart(2, '0').toUpperCase();
+            colorInput.value = `${hexColor}${opacityHex}`;
+            opacityDisplay.textContent = opacity;
+            debounceColorChange(colorInput);
+        };
+
+        // Color picker change event
+        colorPicker.addEventListener('input', updateColor);
+    
+        // Opacity slider events
+        opacitySlider.addEventListener('input', () => {
+            opacityDisplay.textContent = opacitySlider.value;
+        });
+        opacitySlider.addEventListener('change', updateColor);
+
+        // Original input change event
+        colorInput.addEventListener('input', () => {
+            const hexColor = colorInput.value;
+            if (/^[A-F0-9]{8}$/i.test(hexColor)) {
+                colorPicker.value = `#${hexColor.slice(0, 6)}`;
+                const opacity = parseInt(hexColor.slice(6, 8), 16);
+                opacitySlider.value = opacity;
+                opacityDisplay.textContent = opacity;
+            }
+        });
+    }
+
+    /**
+    * Debounces color change updates to prevent rapid fire updates
+    * @param {HTMLElement} colorInput - The color input element that changed
+    */
+    function debounceColorChange(colorInput) {
+        clearTimeout(colorPickerState.debounceTimer);
+        colorPickerState.debounceTimer = setTimeout(() => {
+            sendColorUpdateToFC2(colorInput);
+        }, 500);
+    }
+
+    /**
+    * Sends color update to FC2
+    * @param {HTMLElement} colorInput - The color input element containing the new value
+    */
+    function sendColorUpdateToFC2(colorInput) {
+        const currentScript = document.querySelector('.tab.active')?.id.replace('tab-', '');
+        if (!currentScript) {
+            console.error('Active tab not found');
+            return;
+        }
+
+        const changedKey = colorInput.id.replace('input-', '');
+        const changedTo = colorInput.value;
+
+        $.get(`${server}/luar`, {
+            req: 3,
+            key: changedKey,
+            val: changedTo,
+            script: currentScript,
+            val_type: 'string'
+        }).fail(() => {
+            console.log("Error occurred while sending changed configuration values");
+        });
+    }
+
+    /**
+    * Initializes color pickers for all color-related configuration inputs
+    */
+    function initializeColorPickers() {
+        const activeConfig = document.querySelector('.config-container .config.active');
+        if (!activeConfig) return;
+
+        const colorConfigItems = activeConfig.querySelectorAll('.config-item input[id*="color"]');
+        colorConfigItems.forEach(setupColorPicker);
+    }
+
+    // Integrate with existing configuration refresh
+    function refreshConfig() {
+        initializeColorPickers();
+    }
+
+    // Update existing observer to include color picker initialization
+    const configObserver = new MutationObserver((mutationsList) => {
+        mutationsList.forEach(mutation => {
+            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                if (document.querySelector('.config-container .config.active')) {
+                    refreshConfig();
+                }
+            }
+        });
+    });
+
+    // Initialize observer when document is ready
+    $(document).ready(() => {
+        const configContainer = document.querySelector('.config-container');
+        configObserver.observe(configContainer, {
+            childList: true,
+            subtree: true,
+            attributes: true
+        });
+    
+        // Initial color picker setup
+        initializeColorPickers();
+    });
+
+    function apply_theme( code )
+    {
+        if ( !custom_style_element )
+        {
+            custom_style_element = document.createElement( 'style' );
+            custom_style_element.innerHTML = code;
+            document.head.append( ( custom_style_element ) );
         }
     }
 
@@ -429,56 +1532,77 @@
          * in the case both are open, we will ask the user to pick
          */
 
-        try {
-            let request1 = $.get(`http://localhost:9282/ping`).then(() => true, () => false);
-            let request2 = $.get(`${server}/ping`).then(() => true, () => false);
+        try
+        {
+            let request1 = $.get( `http://localhost:9282/ping` ).then( () => true, () => false );
+            let request2 = $.get( `${ server }/ping` ).then( () => true, () => false ); /// Constellation4 is by default.
+            let request3 = $.get( `http://localhost:9285/ping` ).then( () => true, () => false );
 
-            let results = await Promise.all([request1, request2]);
+            let results = await Promise.all( [ request1, request2, request3 ] );
 
-            let is_universe_open = results[0];
-            let is_constellation_open = results[1];
+            let is_universe_open = results[ 0 ];
+            let is_constellation_open = results[ 1 ];
+            let is_aurora_open = results[ 2 ];
 
             /** neither solution is open **/
-            if (!is_universe_open && !is_constellation_open) {
-                alert("Both Universe4 and Constellation4 appear to be closed. At least one solution is required.");
+            if ( !is_universe_open && !is_constellation_open && !is_aurora_open )
+            {
+                alert( "All solutions appear to be closed. At least one solution is required." );
                 return;
             }
 
             /** only universe4 is open **/
-            if( is_universe_open && !is_constellation_open )
+            if ( is_universe_open )
             {
                 server = "http://localhost:9282";
                 solution_name = "Universe4";
             }
 
-            /** both are open **/
-            if (is_universe_open && is_constellation_open) {
-                const choice = window.confirm("Universe4 and Constellation4 are both open. consteliaXO needs to know which solution to connect to.\n\nOK: Constellation4\nCancel: Universe4");
+            if( is_constellation_open )
+            {
+                server = "http://localhost:9283";
+                solution_name = "Constellation4";
+            }
 
-                /** always assumed constellation4 by default **/
-                if( !choice ) {
+            if( is_aurora_open )
+            {
+                server = "http://localhost:9285";
+                solution_name = "Aurora2";
+            }
+
+            /** all are open, constellation4 priority **/
+            if ( is_universe_open && (is_constellation_open || is_aurora_open) )
+            {
+                const choice = window.confirm( "Universe4 and " + solution_name + " are both open. consteliaXO needs to know which solution to connect to.\n\nOK: " + solution_name + "\nCancel: Universe4" );
+
+                /** always assumed other solution by default **/
+                if ( !choice )
+                {
                     server = "http://localhost:9282";
                     solution_name = "Universe4";
                 }
             }
 
-            await get_configuration(solution_name);
+            await get_configuration( solution_name );
         }
-        catch (error) {
-            console.error(error);
+        catch ( error )
+        {
+            console.error( error );
         }
     }
 
-    async function reload_all_scripts( ) {
-        await $.get(`${server}/reset`);
+    async function reload_all_scripts()
+    {
+        await $.get( `${ server }/reset` );
     }
 
     /**
      * force to switch to another server.
-     * @param uni_or_con
+     * @param solution_id
      * @returns {Promise<void>}
      */
-    async function force_server_switch(uni_or_con) {
+    async function force_server_switch( solution_id )
+    {
 
         const old_server = server;
         const old_solution_name = solution_name;
@@ -487,12 +1611,20 @@
          * only supporting two solutions, a simple switch.
          * save the old server and solution name just in case.
          */
-        if (!uni_or_con) {
+        if ( !solution_id )
+        {
             server = "http://localhost:9282";
             solution_name = "Universe4";
-        } else {
+        }
+        else if( solution_id === 1 )
+        {
             server = "http://localhost:9283";
             solution_name = "Constellation4";
+        }
+        else
+        {
+            server = "http://localhost:9285";
+            solution_name = "Aurora2";
         }
 
         /** annoying **/
@@ -500,30 +1632,33 @@
 
         /**
          * check if solution is running.
-          */
-        let request = $.get(`${server}/ping`).then(() => true, () => false);
+         */
+        let request = $.get( `${ server }/ping` ).then( () => true, () => false );
         let is_solution_open = await request;
 
-        if( !is_solution_open ) {
-            const choice = window.confirm(solution_name + " is not running, would you like to launch it?" );
+        if ( !is_solution_open )
+        {
+            const choice = window.confirm( solution_name + " is not running, would you like to launch it?" );
 
-            if( choice )
+            if ( choice )
             {
                 let result = false;
 
-                $.get(`${old_server}/luar`, {
+                $.get( `${ old_server }/luar`, {
                     req: 4,
                     val: solution_name,
                 } )
-                    .done( function() {
-                        alert("Solution should be launching now. This can take a bit. See terminal/console of your currently active FC2 solution to see the current status.");
+                    .done( function ()
+                    {
+                        alert( "Solution should be launching now. This can take a bit. See terminal/console of your currently active FC2 solution to see the current status." );
                         result = true;
-                    })
-                    .fail(function() {
-                        alert("Solution failed to start. See terminal/console of your currently active solution.");
-                    });
+                    } )
+                    .fail( function ()
+                    {
+                        alert( "Solution failed to start. See terminal/console of your currently active solution." );
+                    } );
 
-                if( !result )
+                if ( !result )
                 {
                     /**
                      * reset back to old values
@@ -542,51 +1677,246 @@
             }
         }
 
-        try {
-            await get_configuration(solution_name);
-        } catch (error) {
-            console.error(error);
+        try
+        {
+            await get_configuration( solution_name );
+        }
+        catch ( error )
+        {
+            console.error( error );
+        }
+    }
+
+    /**
+     * get user forum avatar
+     * @returns {Promise<null>}
+     */
+    async function get_avatar()
+    {
+        /** update avatar **/
+        let avatar = null;
+        try
+        {
+            avatar = await $.get( `${ server }/luar`, {
+                req: 11,
+            } );
+
+            /** theming **/
+            try
+            {
+                const theme = JSON.parse( avatar[ "theme" ] );
+                apply_theme( theme.code );
+            }
+            catch ( e )
+            {
+            }
+
+            avatar = avatar[ "avatar" ];
+        }
+        catch ( error )
+        {
+            console.error( "Error fetching avatar:", error );
+        }
+
+        console.log( avatar );
+        return avatar;
+    }
+
+    /**
+     * we want to prevent the configuration overlapping the avatar.
+     * it looks really weird in this case.
+     */
+    function check_avatar_overlap()
+    {
+        const config_container = $( '.config-container' );
+        const avatar_container = $( '.avatar-container' );
+        const thresholdHeight = 400;
+
+        if ( config_container.height() > thresholdHeight )
+        {
+            avatar_container.hide();
+        }
+        else
+        {
+            avatar_container.show();
         }
     }
 
     /**
      * LETS GET THIS PARTY STARTED.
      */
-    $(document).ready(function() {
-        check_solution_status();
-    });
+    $( document ).ready( async function ()
+    {
+
+        /** get configuration from solution **/
+        await check_solution_status();
+
+        /** update get avatar */
+        $( "#member_avatar" ).attr( "src", await get_avatar() );
+
+        /**
+         * avatar rotation animation
+         */
+        $('#member_avatar').on('click', function() {
+            $(this).addClass('rotate');
+
+            setTimeout(() => {
+                $(this).removeClass('rotate');
+            }, 1000);
+        });
+
+        /** bone selector **/
+        $( '#select-bones' ).select2( {
+            width: '100%'
+        } );
+
+        /** check if avatar will overlap the configuration container **/
+        check_avatar_overlap();
+    } );
 
     /**
      * copied from heyConstelia.lua's Web GUI
      */
-    $("#constelia-input" ).on( "keypress", ( function( e ) {
+    $( "#constelia-input" ).on( "keypress", ( function ( e )
+    {
 
         /**
          * enter pressed?
          */
-        if( e.which === 13 )
+        if ( e.which === 13 )
         {
 
             /**
              * let user know the AI is thinking
              */
-            update_response( {message: "Thinking... please wait..."} );
+            update_response( { message: "Thinking... please wait..." } );
 
             /**
              * send a request to Constellation4
              */
-            $.get(`${server}/luar`, {
+            $.get( `${ server }/luar`, {
                 req: 1,
-                val: $("#constelia-input").val(),
+                val: $( "#constelia-input" ).val(),
             } )
-                .done( function(data) {
+                .done( function ( data )
+                {
                     return update_response( data );
-                })
-                .fail(function() {
-                    update_response( {message: "Constellation4 is closed. It needs to be open to use this feature."} );
-                });
+                } )
+                .fail( function ()
+                {
+                    update_response( { message: "Constellation4 is closed. It needs to be open to use this feature." } );
+                } );
         }
-    }));
+    } ) );
+
+    /**
+     * bones selector
+     */
+    $( '#select-bones' ).select2().on( 'change', function ()
+    {
+
+        /**
+         * bones selected, convert to a JSON array.
+         * @type {*|jQuery}
+         */
+        let bones = $( this ).val();
+        bones = bones.map( Number );
+
+        /**
+         * debug
+         */
+        console.log( bones );
+
+        /**
+         * no bones, no update
+         */
+        if ( bones.length === 0 )
+        {
+            return;
+        }
+
+        // Assuming this is the request you'd make
+        $.get( `${ server }/luar`, {
+            req: 6,
+            val: JSON.stringify( bones )
+        } )
+            .done( function ()
+            {
+                console.log( 'bones have been updated' );
+            } )
+            .fail( function ()
+            {
+                console.log( "bones failed to update. see fc2 logs" );
+            } );
+    } );
+
+    /**
+     * table sorting
+     */
+    $( ".sort" ).click( function ()
+    {
+
+        let sorted_by = $( this ).data( 'sortby' );
+        let new_dir = $( this ).attr( 'data-order' ) === 'asc' ? 'desc' : 'asc';
+        $( this ).attr( 'data-order', new_dir );
+        $( '.sort-arrow' ).text( '↕' );
+        $( this ).find( '.sort-arrow' ).text( new_dir === 'asc' ? '↑' : '↓' );
+
+        show_scripts_panel( sorted_by, new_dir );
+    } );
+
+    /**
+     * fantasy.cmd
+     */
+    $( '#fantasy_cmd' ).on( 'keypress', function ( e )
+    {
+        if ( e.which === 13 )
+        { // Enter key pressed
+            const command = $( this ).val();
+            if ( command )
+            {
+                $.get( `${ server }/luar`, {
+                    req: 12,
+                    val: command
+                } )
+                    .done( function ( data )
+                    {
+                        console.log( data );
+                        $( '#fantasy_cmd_output' ).html( data[ "result" ].replace( /^print\|/, '' ) );
+
+                        /**
+                         * make sure any links you open in here is opened through FC2
+                         * electron will open it in some other window and it doesn't really help any sort of practical usage here.
+                         */
+                        $( '#fantasy_cmd_output a' ).on( 'click', function ( event )
+                        {
+                            event.preventDefault();
+                            const url = $( this ).attr( 'href' );
+                            open_in_fc2( url );
+                        } );
+                    } )
+                    .fail( function ()
+                    {
+                        $( '#fantasy_cmd_output' ).html( 'FC2 solution is not responsive.' );
+                    } );
+            }
+        }
+    } );
+
+    /**
+     * watch over avatar and configuration container.
+     * @type {MutationObserver}
+     */
+    const avatar_observer = new MutationObserver( check_avatar_overlap );
+    avatar_observer.observe( document.querySelector( '.config-container' ), {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true
+    } );
+
+
+
 
 </script>
 
