@@ -375,7 +375,7 @@
             background: #ddd;
             width: 60px;
         }
-    
+
         .opacity-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 12px;
@@ -701,6 +701,7 @@
     <button class="constelia-configuration-button" onclick="force_server_switch(0)" title="Universe4">🌌</button>
     <button class="constelia-configuration-button" onclick="force_server_switch(1)" title="Constellation4">🌠</button>
     <button class="constelia-configuration-button" onclick="force_server_switch(2)" title="Aurora2">🌆</button>
+    <button class="constelia-configuration-button" onclick="force_server_switch(3)" title="Omega">🎇</button>
     <button class="constelia-configuration-button" onclick="reload_all_scripts()" title="Reload All Scripts">💫</button>
     <br/>
 
@@ -741,8 +742,8 @@
     let custom_style_element = null;
 
     /**
-    * Handles initialization and updates of color picker elements in the configuration
-    */
+     * Handles initialization and updates of color picker elements in the configuration
+     */
     let colorPickerState = {
         debounceTimer: null
     };
@@ -830,13 +831,14 @@
     function show_bones_panel()
     {
 
-        if ( solution_name !== "Constellation4" )
+        if ( solution_name == "Constellation4" || solution_name == "omega" )
         {
-            alert( "Bone selection is only for Constellation4." );
-            return;
+            $( '#bones-panel-modal' ).modal( 'show' );
         }
-
-        $( '#bones-panel-modal' ).modal( 'show' );
+        else
+        {
+            alert( "Bone selection is only for Constellation4 or Omega." );
+        }
     }
 
     /**
@@ -1073,7 +1075,7 @@
 
                 ace_json_editor.setValue( json_string, 1 );
                 $( '#json-editor-modal' ).modal( 'show' );
-                } )
+            } )
             .fail( function ()
             {
                 console.log( "failed to get local configuration" );
@@ -1299,10 +1301,10 @@
     }
 
     /**
-    * Creates a styled container for the color picker and opacity slider
-    * @param {HTMLElement} colorInput - The original input element
-    * @returns {HTMLElement} The container element
-    */
+     * Creates a styled container for the color picker and opacity slider
+     * @param {HTMLElement} colorInput - The original input element
+     * @returns {HTMLElement} The container element
+     */
     function createColorPickerContainer(colorInput) {
         const container = document.createElement('div');
         container.classList.add('color-picker-container');
@@ -1314,10 +1316,10 @@
     }
 
     /**
-    * Creates a color picker element
-    * @param {string} initialColor - Initial color value
-    * @returns {HTMLElement} The color picker element
-    */
+     * Creates a color picker element
+     * @param {string} initialColor - Initial color value
+     * @returns {HTMLElement} The color picker element
+     */
     function createColorPickerElement(initialColor) {
         const colorPicker = document.createElement('input');
         colorPicker.type = 'color';
@@ -1328,10 +1330,10 @@
     }
 
     /**
-    * Creates an opacity slider element
-    * @param {number} initialOpacity - Initial opacity value (0-255)
-    * @returns {HTMLElement} The opacity slider element
-    */
+     * Creates an opacity slider element
+     * @param {number} initialOpacity - Initial opacity value (0-255)
+     * @returns {HTMLElement} The opacity slider element
+     */
     function createOpacitySlider(initialOpacity) {
         const opacitySlider = document.createElement('input');
         opacitySlider.type = 'range';
@@ -1345,10 +1347,10 @@
     }
 
     /**
-    * Creates an opacity value display
-    * @param {number} initialOpacity - Initial opacity value (0-255)
-    * @returns {HTMLElement} The opacity display element
-    */
+     * Creates an opacity value display
+     * @param {number} initialOpacity - Initial opacity value (0-255)
+     * @returns {HTMLElement} The opacity display element
+     */
     function createOpacityDisplay(initialOpacity) {
         const opacityDisplay = document.createElement('span');
         opacityDisplay.classList.add('opacity-display');
@@ -1359,9 +1361,9 @@
     }
 
     /**
-    * Sets up a color picker for a single configuration input
-    * @param {HTMLElement} colorInput - The input element to attach a color picker to
-    */
+     * Sets up a color picker for a single configuration input
+     * @param {HTMLElement} colorInput - The input element to attach a color picker to
+     */
     function setupColorPicker(colorInput) {
         const textInput = colorInput.closest('.config-item').querySelector('input[type="text"]');
         if (!textInput || colorInput.nextElementSibling?.classList.contains('color-picker-container')) return;
@@ -1376,10 +1378,10 @@
 
         // Create and set up container
         const container = createColorPickerContainer(colorInput);
-    
+
         // Create and set up color picker
         const colorPicker = createColorPickerElement(initialColor);
-    
+
         // Create and set up opacity controls
         const opacitySlider = createOpacitySlider(initialOpacity);
         const opacityDisplay = createOpacityDisplay(initialOpacity);
@@ -1397,12 +1399,12 @@
     }
 
     /**
-    * Sets up event listeners for the color picker components
-    * @param {HTMLElement} colorPicker - The color picker element
-    * @param {HTMLElement} opacitySlider - The opacity slider element
-    * @param {HTMLElement} opacityDisplay - The opacity display element
-    * @param {HTMLElement} colorInput - The original input element
-    */
+     * Sets up event listeners for the color picker components
+     * @param {HTMLElement} colorPicker - The color picker element
+     * @param {HTMLElement} opacitySlider - The opacity slider element
+     * @param {HTMLElement} opacityDisplay - The opacity display element
+     * @param {HTMLElement} colorInput - The original input element
+     */
     function setupColorPickerEvents(colorPicker, opacitySlider, opacityDisplay, colorInput) {
         // Update function to combine color and opacity
         const updateColor = () => {
@@ -1416,7 +1418,7 @@
 
         // Color picker change event
         colorPicker.addEventListener('input', updateColor);
-    
+
         // Opacity slider events
         opacitySlider.addEventListener('input', () => {
             opacityDisplay.textContent = opacitySlider.value;
@@ -1436,9 +1438,9 @@
     }
 
     /**
-    * Debounces color change updates to prevent rapid fire updates
-    * @param {HTMLElement} colorInput - The color input element that changed
-    */
+     * Debounces color change updates to prevent rapid fire updates
+     * @param {HTMLElement} colorInput - The color input element that changed
+     */
     function debounceColorChange(colorInput) {
         clearTimeout(colorPickerState.debounceTimer);
         colorPickerState.debounceTimer = setTimeout(() => {
@@ -1447,9 +1449,9 @@
     }
 
     /**
-    * Sends color update to FC2
-    * @param {HTMLElement} colorInput - The color input element containing the new value
-    */
+     * Sends color update to FC2
+     * @param {HTMLElement} colorInput - The color input element containing the new value
+     */
     function sendColorUpdateToFC2(colorInput) {
         const currentScript = document.querySelector('.tab.active')?.id.replace('tab-', '');
         if (!currentScript) {
@@ -1472,8 +1474,8 @@
     }
 
     /**
-    * Initializes color pickers for all color-related configuration inputs
-    */
+     * Initializes color pickers for all color-related configuration inputs
+     */
     function initializeColorPickers() {
         const activeConfig = document.querySelector('.config-container .config.active');
         if (!activeConfig) return;
@@ -1506,7 +1508,7 @@
             subtree: true,
             attributes: true
         });
-    
+
         // Initial color picker setup
         initializeColorPickers();
     });
@@ -1537,15 +1539,17 @@
             let request1 = $.get( `http://localhost:9282/ping` ).then( () => true, () => false );
             let request2 = $.get( `${ server }/ping` ).then( () => true, () => false ); /// Constellation4 is by default.
             let request3 = $.get( `http://localhost:9285/ping` ).then( () => true, () => false );
+            let request4 = $.get( `http://localhost:9290/ping` ).then( () => true, () => false );
 
-            let results = await Promise.all( [ request1, request2, request3 ] );
+            let results = await Promise.all( [ request1, request2, request3, request4 ] );
 
             let is_universe_open = results[ 0 ];
             let is_constellation_open = results[ 1 ];
             let is_aurora_open = results[ 2 ];
+            let is_omega_open = results[ 3 ];
 
             /** neither solution is open **/
-            if ( !is_universe_open && !is_constellation_open && !is_aurora_open )
+            if ( !is_universe_open && !is_constellation_open && !is_aurora_open && !is_omega_open )
             {
                 alert( "All solutions appear to be closed. At least one solution is required." );
                 return;
@@ -1568,6 +1572,12 @@
             {
                 server = "http://localhost:9285";
                 solution_name = "Aurora2";
+            }
+
+            if( is_omega_open )
+            {
+                server = "http://localhost:9290";
+                solution_name = "omega";
             }
 
             /** all are open, constellation4 priority **/
@@ -1621,10 +1631,15 @@
             server = "http://localhost:9283";
             solution_name = "Constellation4";
         }
-        else
+        else if( solution_id === 2 )
         {
             server = "http://localhost:9285";
             solution_name = "Aurora2";
+        }
+        else if( solution_id === 3 )
+        {
+            server = "http://localhost:9290";
+            solution_name = "omega";
         }
 
         /** annoying **/
@@ -1685,6 +1700,9 @@
         {
             console.error( error );
         }
+
+        /** update get avatar */
+        $( "#member_avatar" ).attr( "src", await get_avatar() );
     }
 
     /**
